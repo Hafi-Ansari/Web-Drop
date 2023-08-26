@@ -1,10 +1,9 @@
+import 'tailwindcss/tailwind.css';
 function App() {
 
   return (
     <>
-      <div>
-        <h1>Web Drop</h1>
-      </div>
+    <h1 className="text-3xl font-bold underline">Web Drop</h1>
     </>
   );
 }
