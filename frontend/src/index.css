@@ -1,3 +1,69 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.circle-wrapper {
+  position: relative;
+}
+
+.circle-wrapper::before,
+.circle-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 1px solid #10b981; /* This color is for the lightGreen based on your previous styles */
+  transform: translate(-50%, -50%) scale(1);
+  animation: expandCircle 5s infinite; /* Adjust the 5s duration as needed */
+  opacity: 0.5;
+}
+
+.circle-wrapper::after {
+  border: 1px solid #10b981; /* This color is for the lightGreen based on your previous styles */
+  animation-delay: 2.5s; /* This delay makes the second circle start its animation halfway through the first one's cycle */
+}
+
+@keyframes expandCircle {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(3); /* The scale factor can be adjusted based on the desired expansion size */
+    opacity: 0;
+  }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #001e2b;
+  overflow-y: hidden;
+}
+
+@keyframes expandCircle1 {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(4);
+    opacity: 0.1;
+  }
+}
+
+@keyframes expandCircle2 {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(4);
+    opacity: 0.1;
+  }
+}
+
+
