@@ -25,14 +25,22 @@ io.on("connection", (socket) => {
   // Register user
   socket.on("register", (username) => {
     users[socket.id] = username;
-    io.emit("userList", Object.values(users));
+    const userList = Object.keys(users).map((id) => ({
+      id,
+      username: users[id],
+    }));
+    io.emit("userList", userList);
   });
 
   // Handle disconnect
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`);
     delete users[socket.id];
-    io.emit("userList", Object.values(users));
+    const userList = Object.keys(users).map((id) => ({
+      id,
+      username: users[id],
+    }));
+    io.emit("userList", userList);
   });
 });
 
