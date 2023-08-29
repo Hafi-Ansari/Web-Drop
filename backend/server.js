@@ -23,12 +23,9 @@ io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
 
   // Register user
-  socket.on("register", (username) => {
-    users[socket.id] = username;
-    const userList = Object.keys(users).map((id) => ({
-      id,
-      username: users[id],
-    }));
+  socket.on("register", (data) => {
+    users[socket.id] = { username: data.username, deviceInfo: data.deviceInfo };
+    const userList = Object.keys(users).map((id) => ({ id, ...users[id] }));
     io.emit("userList", userList);
   });
 
@@ -36,10 +33,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`);
     delete users[socket.id];
-    const userList = Object.keys(users).map((id) => ({
-      id,
-      username: users[id],
-    }));
+    const userList = Object.keys(users).map((id) => ({ id, ...users[id] }));
     io.emit("userList", userList);
   });
 });

@@ -37,6 +37,16 @@
   }
 }
 
+.icon-wrapper {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #00ED64;
+  border-radius: 50%;
+  padding: 15px;
+  color: white; /* Set the icon color to white if you wish */
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -65,5 +75,3 @@ body {
     opacity: 0.1;
   }
 }
-
-
