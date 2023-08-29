@@ -44,7 +44,7 @@ function App() {
       <div className="min-h-screen flex flex-col items-center bg-primaryBackground text-black">
         {users.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center">
-            <h1 className="text-2xl text-lightGreen">
+            <h1 className="text-2xl text-lightGreen text-center">
               Open WebDrop on other devices to send files
             </h1>
             <h1 className="text-white">
@@ -62,12 +62,14 @@ function App() {
                 {user.deviceInfo.includes("Windows") ||
                 user.deviceInfo.includes("Mac") ||
                 user.deviceInfo.includes("Linux") ? (
-                  <IoMdDesktop size={48} />
+                  <IoMdDesktop size={56} />
                 ) : (
-                  <BiMobile size={48} />
+                  <BiMobile size={56} />
                 )}
               </div>
-              <div className="text-center">{user.username}</div>
+              <div className="flex flex-col items-center justify-center">
+                <div className="text-center text-sm w-28 truncate">{user.username}</div>
+              </div>
               <div className="text-xs text-gray-400 mb-2">
                 {user.deviceInfo}
               </div>
