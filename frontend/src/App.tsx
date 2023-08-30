@@ -58,13 +58,13 @@ function App() {
               key={index}
               className="flex flex-col items-center justify-center m-2"
             >
-              <div className="icon-wrapper mb-2">
+              <div className="icon-wrapper mb-2 transition-transform transform hover:scale-110">
                 {user.deviceInfo.includes("Windows") ||
                 user.deviceInfo.includes("Mac") ||
                 user.deviceInfo.includes("Linux") ? (
-                  <IoMdDesktop size={56} />
+                  <IoMdDesktop size={48} />
                 ) : (
-                  <BiMobile size={56} />
+                  <BiMobile size={48} />
                 )}
               </div>
               <div className="flex flex-col items-center justify-center">
