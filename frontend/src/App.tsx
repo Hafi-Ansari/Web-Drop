@@ -68,7 +68,9 @@ function App() {
                 )}
               </div>
               <div className="flex flex-col items-center justify-center">
-                <div className="text-center text-sm w-28 truncate">{user.username}</div>
+                <div className="text-center text-sm w-28 truncate">
+                  {user.username}
+                </div>
               </div>
               <div className="text-xs text-gray-400 mb-2">
                 {user.deviceInfo}
