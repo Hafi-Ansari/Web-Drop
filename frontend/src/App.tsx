@@ -29,31 +29,42 @@ function App() {
     const deviceInfo = getDeviceInfo();
 
     // Register the user with both username and deviceInfo
-    socket.emit("register", { username, deviceInfo, peerId: peer.id }); // Include PeerJS ID
+    socket.emit("register", { username, deviceInfo, peerId: peer.id });
 
-    socket.on(
-      "userList",
-      (
-        updatedUsers: {
-          id: string;
-          username: string;
-          deviceInfo: string;
-          peerId: string;
-        }[]
-      ) => {
-        const otherUsers = updatedUsers.filter((user) => user.id !== socket.id);
-        setUsers(otherUsers);
-      }
-    );
+    const handleUserListUpdate = (
+      updatedUsers: {
+        id: string;
+        username: string;
+        deviceInfo: string;
+        peerId: string;
+      }[]
+    ) => {
+      const otherUsers = updatedUsers.filter((user) => user.id !== socket.id);
+      setUsers(otherUsers);
+    };
+
+    socket.on("userList", handleUserListUpdate);
+
+    // Cleanup
+    return () => {
+      socket.off("userList", handleUserListUpdate);
+    };
   }, [username]);
 
   useEffect(() => {
-    peer.on("connection", (conn) => {
+    const handleNewConnection = (conn: any) => {
       setPeerConnections((prevConnections) => [...prevConnections, conn]);
-      conn.on("data", (data) => {
+      conn.on("data", (data: any) => {
         console.log("Received:", data);
       });
-    });
+    };
+
+    peer.on("connection", handleNewConnection);
+
+    // Cleanup
+    return () => {
+      peer.off("connection", handleNewConnection);
+    };
   }, []);
 
   const connectToPeer = (otherPeerId: string) => {
@@ -63,10 +74,8 @@ function App() {
     }
 
     const conn = peer.connect(otherPeerId);
-    console.log("works here")
     conn.on("open", () => {
       setPeerConnections((prevConnections) => [...prevConnections, conn]);
-      console.log("sending message")
       conn.send("Hello, peer!");
     });
   };
