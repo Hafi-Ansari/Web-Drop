@@ -14,8 +14,10 @@ const ORIGIN = process.env.CORS_ORIGIN || "*";
 
 const peerServer = ExpressPeerServer(server, {
   debug: true,
-  path: "/peerjs", // you can specify a path or leave it to default
+  path: ""
 });
+
+app.use('/peerjs', peerServer);
 
 const io = socketIO(server, {
   cors: {
@@ -29,7 +31,11 @@ io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
 
   socket.on("register", (data) => {
-    users[socket.id] = { username: data.username, deviceInfo: data.deviceInfo };
+    users[socket.id] = {
+      username: data.username,
+      deviceInfo: data.deviceInfo,
+      peerId: data.peerId, // Save the PeerJS ID
+    };
     const userList = Object.keys(users).map((id) => ({ id, ...users[id] }));
     io.emit("userList", userList);
   });

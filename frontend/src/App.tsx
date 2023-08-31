@@ -11,8 +11,9 @@ import { peer } from "./peer";
 
 function App() {
   const [users, setUsers] = useState<
-    { id: string; username: string; deviceInfo: string }[]
+    { id: string; username: string; deviceInfo: string; peerId: string }[]
   >([]);
+
   const [username, setUsername] = useState<string>("");
   const [peerConnections, setPeerConnections] = useState<any[]>([]);
 
@@ -28,12 +29,17 @@ function App() {
     const deviceInfo = getDeviceInfo();
 
     // Register the user with both username and deviceInfo
-    socket.emit("register", { username, deviceInfo });
+    socket.emit("register", { username, deviceInfo, peerId: peer.id }); // Include PeerJS ID
 
     socket.on(
       "userList",
       (
-        updatedUsers: { id: string; username: string; deviceInfo: string }[]
+        updatedUsers: {
+          id: string;
+          username: string;
+          deviceInfo: string;
+          peerId: string;
+        }[]
       ) => {
         const otherUsers = updatedUsers.filter((user) => user.id !== socket.id);
         setUsers(otherUsers);
@@ -51,6 +57,12 @@ function App() {
   }, []);
 
   const connectToPeer = (otherPeerId: string) => {
+    console.log("dammit")
+    if (!peer) {
+      console.error("Peer is not initialized");
+      return;
+    }
+
     const conn = peer.connect(otherPeerId);
     conn.on("open", () => {
       setPeerConnections((prevConnections) => [...prevConnections, conn]);
@@ -79,7 +91,7 @@ function App() {
             >
               <div
                 className="icon-wrapper mb-2 transition-transform transform hover:scale-110"
-                onClick={() => connectToPeer("some-other-peer-id")}
+                onClick={() => connectToPeer(user.peerId)}
               >
                 {user.deviceInfo.includes("Windows") ||
                 user.deviceInfo.includes("Mac") ||
