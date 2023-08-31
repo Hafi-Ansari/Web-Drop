@@ -57,15 +57,16 @@ function App() {
   }, []);
 
   const connectToPeer = (otherPeerId: string) => {
-    console.log("dammit")
     if (!peer) {
       console.error("Peer is not initialized");
       return;
     }
 
     const conn = peer.connect(otherPeerId);
+    console.log("works here")
     conn.on("open", () => {
       setPeerConnections((prevConnections) => [...prevConnections, conn]);
+      console.log("sending message")
       conn.send("Hello, peer!");
     });
   };

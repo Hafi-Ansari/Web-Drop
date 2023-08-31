@@ -14,7 +14,6 @@ const ORIGIN = process.env.CORS_ORIGIN || "*";
 
 const peerServer = ExpressPeerServer(server, {
   debug: true,
-  path: ""
 });
 
 app.use('/peerjs', peerServer);
