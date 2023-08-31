@@ -7,12 +7,15 @@ import { BiMobile } from "react-icons/bi";
 import { getRandomUsername } from "./randomUsernames";
 import { getDeviceInfo } from "./deviceInfo";
 import socket from "./socket";
+import { peer } from "./peer";
 
 function App() {
   const [users, setUsers] = useState<
-    { id: string; username: string; deviceInfo: string }[]
+    { id: string; username: string; deviceInfo: string; peerId: string }[]
   >([]);
+
   const [username, setUsername] = useState<string>("");
+  const [peerConnections, setPeerConnections] = useState<any[]>([]);
 
   useEffect(() => {
     const randomUsername = getRandomUsername();
@@ -26,18 +29,56 @@ function App() {
     const deviceInfo = getDeviceInfo();
 
     // Register the user with both username and deviceInfo
-    socket.emit("register", { username, deviceInfo });
+    socket.emit("register", { username, deviceInfo, peerId: peer.id });
 
-    socket.on(
-      "userList",
-      (
-        updatedUsers: { id: string; username: string; deviceInfo: string }[]
-      ) => {
-        const otherUsers = updatedUsers.filter((user) => user.id !== socket.id);
-        setUsers(otherUsers);
-      }
-    );
+    const handleUserListUpdate = (
+      updatedUsers: {
+        id: string;
+        username: string;
+        deviceInfo: string;
+        peerId: string;
+      }[]
+    ) => {
+      const otherUsers = updatedUsers.filter((user) => user.id !== socket.id);
+      setUsers(otherUsers);
+    };
+
+    socket.on("userList", handleUserListUpdate);
+
+    // Cleanup
+    return () => {
+      socket.off("userList", handleUserListUpdate);
+    };
   }, [username]);
+
+  useEffect(() => {
+    const handleNewConnection = (conn: any) => {
+      setPeerConnections((prevConnections) => [...prevConnections, conn]);
+      conn.on("data", (data: any) => {
+        console.log("Received:", data);
+      });
+    };
+
+    peer.on("connection", handleNewConnection);
+
+    // Cleanup
+    return () => {
+      peer.off("connection", handleNewConnection);
+    };
+  }, []);
+
+  const connectToPeer = (otherPeerId: string) => {
+    if (!peer) {
+      console.error("Peer is not initialized");
+      return;
+    }
+
+    const conn = peer.connect(otherPeerId);
+    conn.on("open", () => {
+      setPeerConnections((prevConnections) => [...prevConnections, conn]);
+      conn.send("Hello, peer!");
+    });
+  };
 
   return (
     <>
@@ -58,7 +99,10 @@ function App() {
               key={index}
               className="flex flex-col items-center justify-center m-2"
             >
-              <div className="icon-wrapper mb-2 transition-transform transform hover:scale-110">
+              <div
+                className="icon-wrapper mb-2 transition-transform transform hover:scale-110"
+                onClick={() => connectToPeer(user.peerId)}
+              >
                 {user.deviceInfo.includes("Windows") ||
                 user.deviceInfo.includes("Mac") ||
                 user.deviceInfo.includes("Linux") ? (
