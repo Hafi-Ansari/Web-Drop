@@ -7,12 +7,14 @@ import { BiMobile } from "react-icons/bi";
 import { getRandomUsername } from "./randomUsernames";
 import { getDeviceInfo } from "./deviceInfo";
 import socket from "./socket";
+import { peer } from "./peer";
 
 function App() {
   const [users, setUsers] = useState<
     { id: string; username: string; deviceInfo: string }[]
   >([]);
   const [username, setUsername] = useState<string>("");
+  const [peerConnections, setPeerConnections] = useState<any[]>([]);
 
   useEffect(() => {
     const randomUsername = getRandomUsername();
@@ -39,6 +41,23 @@ function App() {
     );
   }, [username]);
 
+  useEffect(() => {
+    peer.on("connection", (conn) => {
+      setPeerConnections((prevConnections) => [...prevConnections, conn]);
+      conn.on("data", (data) => {
+        console.log("Received:", data);
+      });
+    });
+  }, []);
+
+  const connectToPeer = (otherPeerId: string) => {
+    const conn = peer.connect(otherPeerId);
+    conn.on("open", () => {
+      setPeerConnections((prevConnections) => [...prevConnections, conn]);
+      conn.send("Hello, peer!");
+    });
+  };
+
   return (
     <>
       <div className="min-h-screen flex flex-col items-center bg-primaryBackground text-black">
@@ -58,7 +77,10 @@ function App() {
               key={index}
               className="flex flex-col items-center justify-center m-2"
             >
-              <div className="icon-wrapper mb-2 transition-transform transform hover:scale-110">
+              <div
+                className="icon-wrapper mb-2 transition-transform transform hover:scale-110"
+                onClick={() => connectToPeer("some-other-peer-id")}
+              >
                 {user.deviceInfo.includes("Windows") ||
                 user.deviceInfo.includes("Mac") ||
                 user.deviceInfo.includes("Linux") ? (
