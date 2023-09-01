@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "tailwindcss/tailwind.css";
 import "./index.css";
 import { MdOutlineWifiTethering } from "react-icons/md";
@@ -13,9 +13,10 @@ function App() {
   const [users, setUsers] = useState<
     { id: string; username: string; deviceInfo: string; peerId: string }[]
   >([]);
-
   const [username, setUsername] = useState<string>("");
   const [peerConnections, setPeerConnections] = useState<any[]>([]);
+  const [selectedPeerId, setSelectedPeerId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const randomUsername = getRandomUsername();
@@ -67,7 +68,14 @@ function App() {
     };
   }, []);
 
-  const connectToPeer = (otherPeerId: string) => {
+  const handleFileChange = (e: any) => {
+    const file = e.target.files[0];
+    if (file && selectedPeerId) {
+      connectToPeer(selectedPeerId, file);
+    }
+  };
+
+  const connectToPeer = (otherPeerId: string, file: File) => {
     if (!peer) {
       console.error("Peer is not initialized");
       return;
@@ -77,6 +85,14 @@ function App() {
     conn.on("open", () => {
       setPeerConnections((prevConnections) => [...prevConnections, conn]);
       conn.send("Hello, peer!");
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          conn.send(e.target?.result);
+        };
+        reader.readAsArrayBuffer(file);
+      }
     });
   };
 
@@ -94,6 +110,12 @@ function App() {
           </div>
         )}
         <div className="flex-grow flex flex-row flex-wrap items-center justify-center text-white">
+          <input
+            type="file"
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            onChange={handleFileChange}
+          />
           {users.map((user, index) => (
             <div
               key={index}
@@ -101,7 +123,10 @@ function App() {
             >
               <div
                 className="icon-wrapper mb-2 transition-transform transform hover:scale-110"
-                onClick={() => connectToPeer(user.peerId)}
+                onClick={() => {
+                  setSelectedPeerId(user.peerId);
+                  fileInputRef.current?.click();
+                }}
               >
                 {user.deviceInfo.includes("Windows") ||
                 user.deviceInfo.includes("Mac") ||
