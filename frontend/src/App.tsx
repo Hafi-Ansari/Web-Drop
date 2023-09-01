@@ -57,6 +57,26 @@ function App() {
       setPeerConnections((prevConnections) => [...prevConnections, conn]);
       conn.on("data", (data: any) => {
         console.log("Received:", data);
+
+        // Check if the received data is an ArrayBuffer (i.e., a file)
+        if (data instanceof ArrayBuffer) {
+          const blob = new Blob([data]);
+
+          // Create an invisible <a> element with a download attribute
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.style.display = "none";
+          a.href = url;
+          a.download = "received-file"; // You can give a dynamic name here
+          document.body.appendChild(a);
+
+          // Trigger download
+          a.click();
+
+          // Cleanup
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        }
       });
     };
 
