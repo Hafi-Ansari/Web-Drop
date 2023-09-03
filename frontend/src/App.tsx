@@ -57,6 +57,7 @@ function App() {
 
     const handleNewConnection = (conn: any) => {
       setPeerConnections((prevConnections) => [...prevConnections, conn]);
+      console.log(peerConnections)
 
       conn.on("data", (data: any) => {
         // If the data is a string, assume it's metadata
