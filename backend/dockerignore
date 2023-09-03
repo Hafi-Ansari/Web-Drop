@@ -1,0 +1,24 @@
+# Ignore node modules
+node_modules/
+
+# Ignore .env files (environment variables)
+.env
+
+# Ignore logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ignore the build folder (if you're compiling/transpiling your code)
+/dist
+/build
+
+# Ignore IDE and editor files/folders
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Other common directories to ignore
+/cache
+/tmp
