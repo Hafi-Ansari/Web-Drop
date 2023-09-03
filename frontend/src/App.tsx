@@ -53,24 +53,28 @@ function App() {
   }, [username]);
 
   useEffect(() => {
+    let receivedMetadata: { fileName: string; fileType: string } | null = null;
+
     const handleNewConnection = (conn: any) => {
       setPeerConnections((prevConnections) => [...prevConnections, conn]);
+
       conn.on("data", (data: any) => {
-        console.log("Received:", data);
+        // If the data is a string, assume it's metadata
+        if (typeof data === "string") {
+          receivedMetadata = JSON.parse(data);
+        }
 
-        // Check if the received data is an ArrayBuffer (i.e., a file)
-        if (data instanceof ArrayBuffer) {
-          const blob = new Blob([data]);
+        // If the data is an ArrayBuffer, assume it's the file data
+        if (data instanceof ArrayBuffer && receivedMetadata) {
+          const blob = new Blob([data], { type: receivedMetadata.fileType });
 
-          // Create an invisible <a> element with a download attribute
+          // Create invisible <a> element for download
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.style.display = "none";
           a.href = url;
-          a.download = "received-file"; // You can give a dynamic name here
+          a.download = receivedMetadata.fileName; // Use metadata for file name
           document.body.appendChild(a);
-
-          // Trigger download
           a.click();
 
           // Cleanup
@@ -104,9 +108,16 @@ function App() {
     const conn = peer.connect(otherPeerId);
     conn.on("open", () => {
       setPeerConnections((prevConnections) => [...prevConnections, conn]);
-      conn.send("Hello, peer!");
 
       if (file) {
+        // Send metadata first
+        const metadata = {
+          fileName: file.name,
+          fileType: file.type,
+        };
+        conn.send(JSON.stringify(metadata));
+
+        // Existing code to read and send the file
         const reader = new FileReader();
         reader.onload = function (e) {
           conn.send(e.target?.result);
