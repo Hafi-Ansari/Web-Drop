@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 const https = require("https");
 const fs = require("fs");
-const http = require("http");
 const socketIO = require("socket.io");
 const { ExpressPeerServer } = require("peer");
 require("dotenv").config();
@@ -11,11 +10,18 @@ const app = express();
 app.use(cors());
 
 // Read the private key and certificate
-const privateKey = fs.readFileSync("path/to/key.pem", "utf8");
-const certificate = fs.readFileSync("path/to/cert.pem", "utf8");
+const privateKey = fs.readFileSync("/home/ubuntu/key.pem", "utf8");
+const certificate = fs.readFileSync("/home/ubuntu/cert.pem", "utf8");
+
+// Add the passphrase here
+const passphrase = "zamala";
 
 // Create credentials object
-const credentials = { key: privateKey, cert: certificate };
+const credentials = {
+  key: privateKey,
+  cert: certificate,
+  passphrase: passphrase,
+};
 
 // Create HTTPS server
 const httpsServer = https.createServer(credentials, app);
