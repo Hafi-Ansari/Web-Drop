@@ -10,17 +10,14 @@ const app = express();
 app.use(cors());
 
 // Read the private key and certificate
-const privateKey = fs.readFileSync("/home/ubuntu/key.pem", "utf8");
-const certificate = fs.readFileSync("/home/ubuntu/cert.pem", "utf8");
+const privateKey = fs.readFileSync("/mycerts/privkey.pem", "utf8");
+const certificate = fs.readFileSync("/mycerts/fullchain.pem", "utf8");
 
-// Add the passphrase here
-const passphrase = "zamala";
 
 // Create credentials object
 const credentials = {
   key: privateKey,
   cert: certificate,
-  passphrase: passphrase,
 };
 
 // Create HTTPS server
