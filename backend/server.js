@@ -1,38 +1,24 @@
 const express = require("express");
 const cors = require("cors");
-const https = require("https");
-const fs = require("fs");
+const http = require("http");
 const socketIO = require("socket.io");
 const { ExpressPeerServer } = require("peer");
 require("dotenv").config();
 
 const app = express();
 app.use(cors());
-
-// Read the private key and certificate
-const privateKey = fs.readFileSync("/mycerts/privkey.pem", "utf8");
-const certificate = fs.readFileSync("/mycerts/fullchain.pem", "utf8");
-
-
-// Create credentials object
-const credentials = {
-  key: privateKey,
-  cert: certificate,
-};
-
-// Create HTTPS server
-const httpsServer = https.createServer(credentials, app);
+const server = http.createServer(app);
 
 const PORT = process.env.PORT || 3000;
 const ORIGIN = process.env.CORS_ORIGIN || "*";
 
-const peerServer = ExpressPeerServer(httpsServer, {
+const peerServer = ExpressPeerServer(server, {
   debug: true,
 });
 
-app.use("/peerjs", peerServer);
+app.use('/peerjs', peerServer);
 
-const io = socketIO(httpsServer, {
+const io = socketIO(server, {
   cors: {
     origin: ORIGIN,
   },
@@ -47,7 +33,7 @@ io.on("connection", (socket) => {
     users[socket.id] = {
       username: data.username,
       deviceInfo: data.deviceInfo,
-      peerId: data.peerId,
+      peerId: data.peerId, // Save the PeerJS ID
     };
     const userList = Object.keys(users).map((id) => ({ id, ...users[id] }));
     io.emit("userList", userList);
@@ -61,14 +47,18 @@ io.on("connection", (socket) => {
   });
 });
 
+// When a new peer connects, you can add their ID to the list of users (optional)
 peerServer.on("connection", (client) => {
   console.log(`New peer connected with id=${client.id}`);
+  // You can add additional logic here if needed
 });
 
+// When a peer disconnects, you can remove their ID from the list of users (optional)
 peerServer.on("disconnect", (client) => {
   console.log(`Peer disconnected with id=${client.id}`);
+  // You can add additional logic here if needed
 });
 
-httpsServer.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
